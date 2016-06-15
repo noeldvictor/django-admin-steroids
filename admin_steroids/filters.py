@@ -52,9 +52,7 @@ class NullBlankListFilter(FieldListFilter):
     """
     
     def __init__(self, field, request, params, model, model_admin, field_path):
-        self.field_path = field_path
-        self.lookup_kwarg = '%s_isnullblank' % field_path
-        
+        self.lookup_kwarg = '%s__isnull' % field_path
         self.lookup_val = None
         try:
             self.lookup_val = request.GET.get(self.lookup_kwarg, None)
@@ -65,14 +63,11 @@ class NullBlankListFilter(FieldListFilter):
                     self.lookup_val = False
         except:
             pass
-        
         super(NullBlankListFilter, self).__init__(field,
             request, params, model, model_admin, field_path)
-        
-    def expected_parameters(self):
-        return [self.lookup_kwarg]
-    
+
     def queryset(self, request, queryset):
+
         try:
             if self.lookup_val is True:
                 queryset = queryset.filter(
@@ -85,6 +80,9 @@ class NullBlankListFilter(FieldListFilter):
             return queryset
         except ValidationError as e:
             raise IncorrectLookupParameters(e)
+
+    def expected_parameters(self):
+        return [self.lookup_kwarg,]
 
     def choices(self, cl):
         for lookup, title in (
